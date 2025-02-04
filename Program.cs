@@ -46,7 +46,30 @@ app.MapGet("/servicetickets", () =>
 
 app.MapGet("/servicetickets/{id}", (int id) =>
 {
-    return serviceTickets.FirstOrDefault(st => st.Id == id);
+    var ticket = serviceTickets.FirstOrDefault(st => st.Id == id);
+    return ticket is not null ? Results.Ok(ticket) : Results.NotFound();
+});
+
+app.MapGet("/employees", () =>
+{
+    return employees;
+});
+
+app.MapGet("/employees/{id}", (int id) =>
+{
+    var employee = employees.FirstOrDefault(e => e.Id == id);
+    return employee is not null ? Results.Ok(employee) : Results.NotFound();
+});
+
+app.MapGet("/customers", () =>
+{
+    return customers;
+});
+
+app.MapGet("/customers/{id}", (int id) =>
+{
+    var customer = customers.FirstOrDefault(c => c.Id == id);
+    return customer is not null ? Results.Ok(customer) : Results.NotFound();
 });
 
 app.Run();
