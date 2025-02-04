@@ -41,50 +41,93 @@ app.UseHttpsRedirection();
 
 app.MapGet("/servicetickets", () =>
 {
-    return serviceTickets;
+    return serviceTickets.Select(st => new
+    {
+        st.Id,
+        st.Description,
+        st.Emergency,
+        st.DateCompleted,
+        Customer = customers.FirstOrDefault(c => c.Id == st.CustomerId),
+        Employee = employees.FirstOrDefault(e => e.Id == st.EmployeeId)
+    });
 });
 
+// Get a single service ticket with employee and customer details
 app.MapGet("/servicetickets/{id}", (int id) =>
 {
     ServiceTicket serviceTicket = serviceTickets.FirstOrDefault(st => st.Id == id);
     if (serviceTicket == null)
     {
-        return Results.NotFound(); // 404 Not Found if no service ticket exists
+        return Results.NotFound();
     }
-    return Results.Ok(serviceTicket); // 200 OK if service ticket is found
-});
 
+    serviceTicket.Employee = employees.FirstOrDefault(e => e.Id == serviceTicket.EmployeeId);
+    serviceTicket.Customer = customers.FirstOrDefault(c => c.Id == serviceTicket.CustomerId);
+
+    return Results.Ok(serviceTicket);
+});
 
 app.MapGet("/employees", () =>
 {
     return employees;
 });
 
+// Get an employee by ID including assigned service tickets
 app.MapGet("/employees/{id}", (int id) =>
 {
     Employee employee = employees.FirstOrDefault(e => e.Id == id);
     if (employee == null)
     {
-        return Results.NotFound(); 
+        return Results.NotFound();
     }
-    return Results.Ok(employee); 
-});
 
+    employee.ServiceTickets = serviceTickets.Where(st => st.EmployeeId == id).ToList();
+
+    return Results.Ok(new
+    {
+        employee.Id,
+        employee.Name,
+        employee.Specialty,
+        ServiceTickets = employee.ServiceTickets.Select(st => new
+        {
+            st.Id,
+            st.Description,
+            st.Emergency,
+            st.DateCompleted
+        })
+    });
+});
 
 app.MapGet("/customers", () =>
 {
     return customers;
 });
 
+// Get a customer by ID, including their service tickets
 app.MapGet("/customers/{id}", (int id) =>
 {
     Customer customer = customers.FirstOrDefault(c => c.Id == id);
     if (customer == null)
     {
-        return Results.NotFound(); 
+        return Results.NotFound();
     }
-    return Results.Ok(customer); 
-});
 
+    var customerTickets = serviceTickets.Where(st => st.CustomerId == id).ToList();
+
+    return Results.Ok(new
+    {
+        customer.Id,
+        customer.Name,
+        customer.Address,
+        ServiceTickets = customerTickets.Select(st => new
+        {
+            st.Id,
+            st.Description,
+            st.Emergency,
+            st.DateCompleted,
+            Employee = employees.FirstOrDefault(e => e.Id == st.EmployeeId)
+        })
+    });
+});
 
 app.Run();
