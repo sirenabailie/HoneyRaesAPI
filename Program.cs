@@ -46,9 +46,14 @@ app.MapGet("/servicetickets", () =>
 
 app.MapGet("/servicetickets/{id}", (int id) =>
 {
-    var ticket = serviceTickets.FirstOrDefault(st => st.Id == id);
-    return ticket is not null ? Results.Ok(ticket) : Results.NotFound();
+    ServiceTicket serviceTicket = serviceTickets.FirstOrDefault(st => st.Id == id);
+    if (serviceTicket == null)
+    {
+        return Results.NotFound(); // 404 Not Found if no service ticket exists
+    }
+    return Results.Ok(serviceTicket); // 200 OK if service ticket is found
 });
+
 
 app.MapGet("/employees", () =>
 {
@@ -57,9 +62,14 @@ app.MapGet("/employees", () =>
 
 app.MapGet("/employees/{id}", (int id) =>
 {
-    var employee = employees.FirstOrDefault(e => e.Id == id);
-    return employee is not null ? Results.Ok(employee) : Results.NotFound();
+    Employee employee = employees.FirstOrDefault(e => e.Id == id);
+    if (employee == null)
+    {
+        return Results.NotFound(); 
+    }
+    return Results.Ok(employee); 
 });
+
 
 app.MapGet("/customers", () =>
 {
@@ -68,8 +78,13 @@ app.MapGet("/customers", () =>
 
 app.MapGet("/customers/{id}", (int id) =>
 {
-    var customer = customers.FirstOrDefault(c => c.Id == id);
-    return customer is not null ? Results.Ok(customer) : Results.NotFound();
+    Customer customer = customers.FirstOrDefault(c => c.Id == id);
+    if (customer == null)
+    {
+        return Results.NotFound(); 
+    }
+    return Results.Ok(customer); 
 });
+
 
 app.Run();
