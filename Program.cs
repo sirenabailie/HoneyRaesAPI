@@ -168,4 +168,22 @@ app.MapPut("/servicetickets/{id}", (int id, ServiceTicket serviceTicket) =>
     return Results.Ok();
 });
 
+app.MapPost("/servicetickets/{id}/complete", (int id) =>
+{
+    // Find service ticket by ID
+    ServiceTicket ticketToComplete = serviceTickets.FirstOrDefault(st => st.Id == id);
+
+    // Check if ticket exists
+    if (ticketToComplete == null)
+    {
+        return Results.NotFound();
+    }
+
+    //Mark the ticket as complete by setting the DateCompleted
+    ticketToComplete.DateCompleted = DateTime.Today;
+
+    //Return a success response
+    return Results.Ok(ticketToComplete);
+});
+
 app.Run();
